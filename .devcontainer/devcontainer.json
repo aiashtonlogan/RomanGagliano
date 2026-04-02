@@ -1,0 +1,6 @@
+{
+  "name": "Logan Brands Dev",
+  "extensions": [
+    "anthropic.claude-code"
+  ]
+}
