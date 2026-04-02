@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Roman Gagliano | QB16</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --r:#C8102E;
+  --b:#003087;
+  --y:#F2C94C;
+  --w:#FFFFFF;
+  --dk:#0A0A0A;
+  --g:#F5F5F5;
+  --mid:#1A1A1A;
+  --muted:#666;
+  --border:#E5E5E5;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--w);color:var(--dk);overflow-x:hidden;cursor:none}
+
+/* custom cursor — American Samoan flag colors */
+.cursor{
+  position:fixed;width:11px;height:11px;
+  background:var(--r);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .2s,height .2s,transform .1s;
+}
+.cursor-ring{
+  position:fixed;width:38px;height:38px;
+  border:2px solid rgba(0,48,135,0.6);
+  border-radius:50%;
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:width .25s,height .25s,border-color .25s;
+}
+body:has(a:hover) .cursor-ring,
+body:has(button:hover) .cursor-ring{width:54px;height:54px;border-color:rgba(0,48,135,0.9)}
+body:has(a:hover) .cursor,
+body:has(button:hover) .cursor{width:6px;height:6px}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  padding:1.2rem 2.5rem;
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.nav-logo{font-family:'Anton',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--dk);text-decoration:none}
+.nav-logo sup{color:var(--r);font-size:.7rem;vertical-align:super}
+.nav-right{display:flex;align-items:center;gap:2rem}
+.nav-links{display:flex;gap:1.8rem;list-style:none}
+.nav-links a{
+  font-family:'Space Mono',monospace;font-size:.65rem;
+  letter-spacing:1px;text-transform:uppercase;
+  color:rgba(10,10,10,.4);text-decoration:none;transition:color .2s;
+}
+.nav-links a:hover{color:var(--r)}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--r);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
+
+/* ══════════════════
+   OPENING
+══════════════════ */
+#open{
+  height:100vh;display:grid;grid-template-columns:55% 45%;
+  position:relative;overflow:hidden;background:var(--w);
+}
+.open-left{
+  background:var(--w);display:flex;flex-direction:column;
+  justify-content:flex-end;padding:2.5rem 2.5rem 3.5rem;
+  position:relative;z-index:2;
+}
+.open-left::after{
+  content:'';position:absolute;top:0;right:-80px;bottom:0;width:160px;
+  background:var(--w);
+  clip-path:polygon(0 0,50% 0,100% 100%,0 100%);z-index:3;
+}
+.open-number{
+  font-family:'Anton',sans-serif;font-size:clamp(12rem,22vw,20rem);
+  line-height:.85;color:transparent;
+  -webkit-text-stroke:1px rgba(10,10,10,.05);
+  position:absolute;top:50%;left:-0.05em;transform:translateY(-50%);
+  pointer-events:none;user-select:none;letter-spacing:-5px;
+}
+.open-tag{
+  font-family:'Space Mono',monospace;font-size:.62rem;
+  letter-spacing:3px;text-transform:uppercase;
+  color:var(--r);margin-bottom:1.2rem;
+  display:flex;align-items:center;gap:.75rem;
+}
+.open-tag::before{content:'';display:block;width:20px;height:1px;background:var(--r)}
+.open-name{
+  font-family:'Anton',sans-serif;font-size:clamp(4rem,8.5vw,7.5rem);
+  line-height:.9;letter-spacing:1px;position:relative;z-index:4;
+}
+.open-name .ln1{color:var(--dk);display:block}
+.open-name .ln2{color:var(--r);display:block}
+.open-meta{display:flex;gap:2rem;margin-top:2rem;position:relative;z-index:4;flex-wrap:wrap}
+.open-meta-item{display:flex;flex-direction:column;gap:.2rem}
+.open-meta-label{font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:2px;text-transform:uppercase;color:rgba(10,10,10,.3)}
+.open-meta-value{font-size:.88rem;font-weight:500;color:var(--dk)}
+.open-cta-row{display:flex;gap:.75rem;margin-top:2.5rem;position:relative;z-index:4}
+.btn-solid{
+  font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;
+  background:var(--r);color:#fff;padding:.75rem 1.6rem;border-radius:3px;
+  text-decoration:none;transition:background .2s,transform .2s;border:none;cursor:none;
+}
+.btn-solid:hover{background:#a0001e;transform:translateY(-2px)}
+.btn-ghost{
+  font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;
+  background:transparent;color:rgba(10,10,10,.5);padding:.75rem 1.6rem;border-radius:3px;
+  text-decoration:none;border:1px solid rgba(10,10,10,.15);transition:all .2s;cursor:none;
+}
+.btn-ghost:hover{border-color:var(--dk);color:var(--dk);transform:translateY(-2px)}
+.open-right{position:relative;overflow:hidden}
+.open-right img{width:100%;height:100%;object-fit:cover;object-position:center 10%}
+.open-right::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,48,135,.08),rgba(200,16,46,.05));
+  mix-blend-mode:multiply;
+}
+
+/* ══════════════════
+   MARQUEE
+══════════════════ */
+.marquee{background:var(--dk);padding:.65rem 0;overflow:hidden}
+.marquee-track{display:flex;width:max-content;animation:marq 22s linear infinite}
+.marquee-item{
+  font-family:'Anton',sans-serif;font-size:.85rem;letter-spacing:2px;text-transform:uppercase;
+  color:#fff;white-space:nowrap;padding:0 1.5rem;
+  display:flex;align-items:center;gap:1.5rem;
+}
+.marquee-item::after{content:'◆';color:var(--r);font-size:.5rem}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ══════════════════
+   STORY
+══════════════════ */
+#story{background:var(--w);padding:6rem 0;border-bottom:1px solid var(--border)}
+.story-container{max-width:1300px;margin:0 auto;padding:0 2.5rem}
+.story-intro{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;margin-bottom:5rem}
+.story-intro-label{
+  font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--r);display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;
+}
+.story-intro-label::before{content:'';display:block;width:20px;height:1px;background:var(--r)}
+.story-big-text{font-family:'Anton',sans-serif;font-size:clamp(2.2rem,4vw,3.5rem);line-height:1.05;letter-spacing:.5px;color:var(--dk)}
+.story-big-text em{color:var(--r);font-style:normal}
+.story-body p{font-size:.97rem;line-height:1.9;color:rgba(10,10,10,.55);margin-bottom:1.2rem}
+.story-body p strong{color:var(--dk);font-weight:600}
+.story-scroll-row{
+  display:flex;gap:1rem;overflow-x:auto;scrollbar-width:none;
+  margin:0 -2.5rem;padding:0 2.5rem 1rem;
+}
+.story-scroll-row::-webkit-scrollbar{display:none}
+.scroll-photo{flex-shrink:0;width:300px;height:420px;border-radius:8px;overflow:hidden;position:relative;border:1px solid var(--border)}
+.scroll-photo img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.scroll-photo:hover img{transform:scale(1.04)}
+.scroll-photo-tag{
+  position:absolute;bottom:.8rem;left:.8rem;
+  font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:2px;text-transform:uppercase;
+  color:#fff;background:rgba(10,10,10,.55);backdrop-filter:blur(6px);
+  padding:.3rem .7rem;border-radius:100px;
+}
+
+/* ══════════════════
+   NUMBERS
+══════════════════ */
+#numbers{background:var(--r);padding:6rem 2.5rem;position:relative;overflow:hidden}
+#numbers::before{
+  content:'16';position:absolute;right:-.1em;top:50%;transform:translateY(-50%);
+  font-family:'Anton',sans-serif;font-size:40vw;color:rgba(0,0,0,.08);line-height:1;pointer-events:none;
+}
+.numbers-container{max-width:1300px;margin:0 auto}
+.numbers-eyebrow{
+  font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(255,255,255,.5);margin-bottom:3rem;display:flex;align-items:center;gap:1rem;
+}
+.numbers-eyebrow::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.15)}
+.numbers-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(255,255,255,.2)}
+.num-col{padding:3rem 2rem 3rem 0;border-right:1px solid rgba(255,255,255,.15)}
+.num-col:last-child{border-right:none}
+.num-index{font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:2px;color:rgba(255,255,255,.4);margin-bottom:1.5rem}
+.num-val{font-family:'Anton',sans-serif;font-size:clamp(3.5rem,6vw,5.5rem);color:#fff;line-height:1;margin-bottom:.6rem}
+.num-lbl{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.9);margin-bottom:.3rem}
+.num-sub{font-size:.75rem;line-height:1.5;color:rgba(255,255,255,.5)}
+
+/* ══════════════════
+   PHOTO WALL
+══════════════════ */
+#photos{background:var(--w);padding:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.photo-wall{display:grid;grid-template-columns:3fr 2fr 2fr;grid-template-rows:500px 350px;gap:3px}
+.pw{overflow:hidden;position:relative}
+.pw img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease,filter .4s}
+.pw:hover img{transform:scale(1.04);filter:brightness(1.08)}
+.pw.tall{grid-row:span 2}
+.pw.wide{grid-column:span 2}
+.pw-cap{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:2rem 1.2rem .8rem;
+  background:linear-gradient(to top,rgba(10,10,10,.8),transparent);
+  font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,.7);opacity:0;transform:translateY(4px);transition:all .3s;
+}
+.pw:hover .pw-cap{opacity:1;transform:translateY(0)}
+
+/* ══════════════════
+   AWARDS
+══════════════════ */
+#awards{background:var(--g);padding:5rem 2.5rem;border-bottom:1px solid var(--border)}
+.awards-container{max-width:1300px;margin:0 auto}
+.awards-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.awards-title{font-family:'Anton',sans-serif;font-size:clamp(2rem,4vw,3rem);color:var(--dk);letter-spacing:1px}
+.awards-sub{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:rgba(10,10,10,.3)}
+.awards-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.award-wrap{border-radius:10px;overflow:hidden;border:1px solid var(--border);transition:transform .3s,box-shadow .3s;background:var(--w)}
+.award-wrap:hover{transform:translateY(-5px);box-shadow:0 16px 48px rgba(200,16,46,.12)}
+.award-wrap img{width:100%;display:block}
+
+/* ══════════════════
+   STATS GRAPHIC
+══════════════════ */
+#stats-graphic{background:var(--w);padding:3rem 2.5rem;border-bottom:1px solid var(--border)}
+.sg-wrap{max-width:1300px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.sg-wrap img{width:100%;display:block}
+
+/* ══════════════════
+   FILM ROOM
+══════════════════ */
+#film{background:var(--dk);padding:5rem 2.5rem}
+.film-container{max-width:1300px;margin:0 auto}
+.film-header{font-family:'Anton',sans-serif;font-size:clamp(2.5rem,5vw,4rem);color:#fff;letter-spacing:1px;margin-bottom:2rem}
+.film-header span{color:var(--y)}
+.film-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.film-card{border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;background:#1a1a1a;transition:border-color .3s}
+.film-card:hover{border-color:rgba(255,255,255,.18)}
+.film-thumb{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.02);cursor:none;position:relative;overflow:hidden}
+.film-thumb video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5}
+.film-play{
+  width:56px;height:56px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.4);font-size:1.1rem;transition:all .3s;
+  position:relative;z-index:1;
+}
+.film-card:hover .film-play{background:var(--r);border-color:var(--r);color:#fff;transform:scale(1.1)}
+.film-info{padding:1.2rem 1.5rem 1.5rem}
+.film-tag{font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:2px;text-transform:uppercase;color:var(--y);margin-bottom:.4rem}
+.film-title{font-weight:600;font-size:.9rem;color:#fff}
+
+/* ══════════════════
+   CONNECT
+══════════════════ */
+#connect{background:var(--w);padding:6rem 2.5rem;border-top:1px solid var(--border)}
+.connect-container{max-width:1300px;margin:0 auto}
+.connect-top{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.connect-headline{font-family:'Anton',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);line-height:.95;letter-spacing:1px;color:var(--dk)}
+.connect-headline span{color:var(--r)}
+.connect-desc{font-size:.95rem;line-height:1.8;color:rgba(10,10,10,.5);margin-top:1rem}
+.connect-links-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:2rem}
+.clink{
+  display:flex;align-items:center;gap:1rem;
+  border:1.5px solid var(--border);border-radius:8px;padding:1rem 1.2rem;
+  text-decoration:none;color:var(--dk);transition:all .25s;cursor:none;background:var(--w);
+}
+.clink:hover{border-color:var(--r);background:rgba(200,16,46,.03);transform:translateY(-2px)}
+.clink-icon{font-size:1.2rem;width:28px;text-align:center;flex-shrink:0}
+.clink-body{flex:1}
+.clink-title{font-weight:600;font-size:.88rem;color:var(--dk);margin-bottom:.1rem}
+.clink-sub{font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(10,10,10,.35)}
+.clink-arr{color:rgba(10,10,10,.2);font-size:.85rem}
+.clink:hover .clink-arr{color:var(--r)}
+.connect-form{background:var(--dk);border-radius:14px;padding:3rem}
+.form-title{font-family:'Anton',sans-serif;font-size:1.8rem;letter-spacing:1px;color:#fff;margin-bottom:.4rem}
+.form-sub{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:2rem}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem}
+.cf{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  border-radius:6px;padding:.8rem 1rem;color:#fff;
+  font-family:'Inter',sans-serif;font-size:.88rem;outline:none;width:100%;transition:border-color .2s;
+}
+.cf::placeholder{color:rgba(255,255,255,.22)}
+.cf:focus{border-color:var(--y)}
+.cf.full{grid-column:span 2}
+textarea.cf{resize:vertical;min-height:100px;margin-bottom:.75rem}
+.cf-submit{
+  width:100%;padding:1rem;border-radius:6px;
+  background:var(--r);color:#fff;font-family:'Inter',sans-serif;
+  font-weight:600;font-size:.88rem;border:none;cursor:none;transition:background .2s;
+}
+.cf-submit:hover{background:#a0001e}
+
+/* ══════════════════
+   FOOTER
+══════════════════ */
+footer{
+  background:var(--dk);border-top:1px solid rgba(255,255,255,.05);
+  padding:2rem 2.5rem;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+}
+.f-logo{font-family:'Anton',sans-serif;font-size:1.3rem;letter-spacing:2px;color:#fff}
+.f-logo span{color:var(--r)}
+.f-copy{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.2)}
+.f-samoa{font-size:.82rem;color:rgba(255,255,255,.2)}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.open-left>*{opacity:0;animation:fadeUp .7s ease forwards}
+.open-left>*:nth-child(1){animation-delay:.15s}
+.open-left>*:nth-child(2){animation-delay:.25s}
+.open-left>*:nth-child(3){animation-delay:.35s}
+.open-left>*:nth-child(4){animation-delay:.45s}
+.open-left>*:nth-child(5){animation-delay:.55s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  #open{grid-template-columns:1fr}
+  .open-right{height:50vh}
+  .open-left::after{display:none}
+  .story-intro{grid-template-columns:1fr;gap:2.5rem}
+  .numbers-row{grid-template-columns:repeat(2,1fr)}
+  .photo-wall{grid-template-columns:1fr 1fr;grid-template-rows:300px 300px 250px}
+  .pw.tall{grid-row:span 1}
+  .awards-grid{grid-template-columns:1fr}
+  .film-grid{grid-template-columns:1fr}
+  .connect-top{grid-template-columns:1fr;gap:2.5rem}
+  .connect-links-grid{grid-template-columns:1fr}
+  .cf-row{grid-template-columns:1fr}
+  .cf.full{grid-column:span 1}
+  nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#open" class="nav-logo">RG<sup>16</sup></a>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#story">Story</a></li>
+      <li><a href="#numbers">Numbers</a></li>
+      <li><a href="#photos">Photos</a></li>
+      <li><a href="#film">Film</a></li>
+      <li><a href="#connect">Connect</a></li>
+    </ul>
+    <div class="nav-dot"></div>
+  </div>
+</nav>
+
+<!-- OPENING -->
+<section id="open">
+  <div class="open-left">
+    <div class="open-number">16</div>
+    <div class="open-tag">MTSU Blue Raiders · QB1 · 2025</div>
+    <div class="open-name">
+      <span class="ln1">Roman</span>
+      <span class="ln2">Gagliano</span>
+    </div>
+    <div class="open-meta">
+      <div class="open-meta-item">
+        <div class="open-meta-label">Position</div>
+        <div class="open-meta-value">Quarterback</div>
+      </div>
+      <div class="open-meta-item">
+        <div class="open-meta-label">Height</div>
+        <div class="open-meta-value">6'2"</div>
+      </div>
+      <div class="open-meta-item">
+        <div class="open-meta-label">Hometown</div>
+        <div class="open-meta-value">Opelika, AL</div>
+      </div>
+      <div class="open-meta-item">
+        <div class="open-meta-label">Heritage</div>
+        <div class="open-meta-value">🌺 American Samoan</div>
+      </div>
+    </div>
+    <div class="open-cta-row">
+      <a href="#story" class="btn-solid">My Story</a>
+      <a href="#connect" class="btn-ghost">Work Together</a>
+    </div>
+  </div>
+  <div class="open-right">
+    <img src="Roman_Terps_Juke.jpg" alt="Roman Gagliano"/>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-track">
+    <div class="marquee-item">471 Total Yards · First Start</div>
+    <div class="marquee-item">TSWA Offensive Player of the Week</div>
+    <div class="marquee-item">91.8 PFF Grade · #3 Nationally</div>
+    <div class="marquee-item">CUSA Freshman of the Week</div>
+    <div class="marquee-item">383 Pass Yds · MTSU Freshman Record</div>
+    <div class="marquee-item">🌺 American Samoan Pride</div>
+    <div class="marquee-item">471 Total Yards · First Start</div>
+    <div class="marquee-item">TSWA Offensive Player of the Week</div>
+    <div class="marquee-item">91.8 PFF Grade · #3 Nationally</div>
+    <div class="marquee-item">CUSA Freshman of the Week</div>
+    <div class="marquee-item">383 Pass Yds · MTSU Freshman Record</div>
+    <div class="marquee-item">🌺 American Samoan Pride</div>
+  </div>
+</div>
+
+<!-- STORY -->
+<section id="story">
+  <div class="story-container">
+    <div class="story-intro">
+      <div>
+        <div class="story-intro-label">The Story</div>
+        <div class="story-big-text">
+          Born in Florida.<br>
+          Built in Alabama.<br>
+          Playing for <em>everyone</em><br>who believed first.
+        </div>
+      </div>
+      <div class="story-body">
+        <p>I was born in Gainesville, FL — lived in Lake City and Pace until 5th grade when my family landed in <strong>Opelika, Alabama</strong>, right next to Auburn. Six kids: Makai, Raeden, Charles, me, Drue, and Myla. Son of <strong>Charles and Drucilla Gagliano</strong>.</p>
+        <p>Coming out of high school I was underrecruited. Almost didn't play at the next level. <strong>Coach Mason came and got me late</strong>, and I'll be grateful for that every day I strap a helmet on.</p>
+        <p>I carry my <strong>American Samoan heritage</strong> everywhere. I play for my family — for every sacrifice they made. I lost my <strong>grammie</strong> and she made me who I am. Every snap is for her too.</p>
+        <p>My teammates call me <strong>Positive. Loving. Leader.</strong> That's all I want to be — on and off the field.</p>
+      </div>
+    </div>
+    <div class="story-scroll-row">
+      <div class="scroll-photo"><img src="Roman_Helmet_Off_Edit.jpg" alt="Roman at Floyd Stadium"/><div class="scroll-photo-tag">Floyd Stadium</div></div>
+      <div class="scroll-photo"><img src="Roman_Sideline_Point.jpg" alt="Roman on the sideline"/><div class="scroll-photo-tag">Sideline · Blue Jersey</div></div>
+      <div class="scroll-photo"><img src="Roman_Sideline_Terps_Look.jpg" alt="Roman sideline look"/><div class="scroll-photo-tag">vs. WKU Sideline</div></div>
+      <div class="scroll-photo"><img src="Roman_Game_Throw_Edit.jpg" alt="Roman throwing"/><div class="scroll-photo-tag">Game Action</div></div>
+      <div class="scroll-photo"><img src="Roman_Hand_Up_Workout.jpg" alt="Roman team run"/><div class="scroll-photo-tag">Team Run</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS -->
+<section id="numbers">
+  <div class="numbers-container">
+    <div class="numbers-eyebrow">By The Numbers</div>
+    <div class="numbers-row">
+      <div class="num-col"><div class="num-index">01</div><div class="num-val">471</div><div class="num-lbl">Total Yards · First Start</div><div class="num-sub">2nd most in a single game in MTSU school history</div></div>
+      <div class="num-col"><div class="num-index">02</div><div class="num-val">383</div><div class="num-lbl">Passing Yards · First Start</div><div class="num-sub">Most ever by a freshman QB in school history</div></div>
+      <div class="num-col"><div class="num-index">03</div><div class="num-val">91.8</div><div class="num-lbl">PFF Grade</div><div class="num-sub">3rd best nationally among QBs — Sam Houston game</div></div>
+      <div class="num-col"><div class="num-index">04</div><div class="num-val">5K+</div><div class="num-lbl">HS Career Pass Yards</div><div class="num-sub">67% completion · All-Area 1st Team · Region champ '21 & '22</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHOTO WALL -->
+<section id="photos">
+  <div class="photo-wall">
+    <div class="pw tall"><img src="Roman_Terps_Throw.jpg" alt="Roman throwing vs WKU" style="object-position:center 15%"/><div class="pw-cap">vs. WKU · First Start</div></div>
+    <div class="pw"><img src="Roman_Throw_SH.jpg" alt="Roman vs Sam Houston" style="object-position:center 30%"/><div class="pw-cap">vs. Sam Houston</div></div>
+    <div class="pw"><img src="Roman_TD_Hand_Up_SH.jpg" alt="Roman TD"/><div class="pw-cap">TD · Nov 22</div></div>
+    <div class="pw wide"><img src="Roman_Terps_Juke.jpg" alt="Roman juke" style="object-position:center 30%"/><div class="pw-cap">64-Yard Scamper · WKU</div></div>
+  </div>
+</section>
+
+<!-- AWARDS -->
+<section id="awards">
+  <div class="awards-container">
+    <div class="awards-header">
+      <div class="awards-title">Recognition</div>
+      <div class="awards-sub">2 starts. Already earning hardware.</div>
+    </div>
+    <div class="awards-grid">
+      <div class="award-wrap"><img src="Roman_Player_of_Week_TSWA.jpg" alt="TSWA Offensive Player of the Week"/></div>
+      <div class="award-wrap"><img src="Roman_LE_Merch_Start_Career.jpg" alt="471 Total Yards"/></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS GRAPHIC -->
+<section id="stats-graphic">
+  <div class="sg-wrap">
+    <img src="Roman_Single_Game_Stats.jpg" alt="Roman Gagliano 471 total yards"/>
+  </div>
+</section>
+
+<!-- FILM ROOM -->
+<section id="film">
+  <div class="film-container">
+    <div class="film-header">Film <span>Room</span></div>
+    <div class="film-grid">
+      <div class="film-card">
+        <div class="film-thumb">
+          <video src="Roman_SH_TD_Run_Win.mov" muted playsinline preload="metadata"></video>
+          <div class="film-play">▶</div>
+        </div>
+        <div class="film-info">
+          <div class="film-tag">Highlights</div>
+          <div class="film-title">TD Run · Sam Houston Win</div>
+        </div>
+      </div>
+      <div class="film-card">
+        <div class="film-thumb">
+          <video src="Roman_Victory_Locker_Room.mov" muted playsinline preload="metadata"></video>
+          <div class="film-play">▶</div>
+        </div>
+        <div class="film-info">
+          <div class="film-tag">Behind The Scenes</div>
+          <div class="film-title">Victory Locker Room</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONNECT -->
+<section id="connect">
+  <div class="connect-container">
+    <div class="connect-top">
+      <div>
+        <div class="connect-headline">Let's<br><span>Link Up</span></div>
+        <p class="connect-desc">Brand, fan, parent, or a kid who loves the game — Roman's door is open. Real conversations. Real relationships.</p>
+        <div class="connect-links-grid">
+          <a href="#" class="clink"><span class="clink-icon">👕</span><div class="clink-body"><div class="clink-title">Shop Merch</div><div class="clink-sub">Limited drops</div></div><span class="clink-arr">→</span></a>
+          <a href="#" class="clink"><span class="clink-icon">🏈</span><div class="clink-body"><div class="clink-title">Football Camps</div><div class="clink-sub">Youth · Flag · Alabama</div></div><span class="clink-arr">→</span></a>
+          <a href="#" class="clink"><span class="clink-icon">🤝</span><div class="clink-body"><div class="clink-title">NIL & Brand Deals</div><div class="clink-sub">Family friendly</div></div><span class="clink-arr">→</span></a>
+          <a href="#" class="clink"><span class="clink-icon">📸</span><div class="clink-body"><div class="clink-title">Instagram</div><div class="clink-sub">@roman_gagliano</div></div><span class="clink-arr">→</span></a>
+        </div>
+      </div>
+      <div class="connect-form">
+        <div class="form-title">Say What's Up</div>
+        <div class="form-sub">He actually reads these.</div>
+        <div class="cf-row">
+          <input class="cf" type="text" placeholder="First Name"/>
+          <input class="cf" type="text" placeholder="Last Name"/>
+          <input class="cf full" type="email" placeholder="Email Address"/>
+          <input class="cf full" type="text" placeholder="What's this about?"/>
+        </div>
+        <textarea class="cf" placeholder="Your message — keep it real."></textarea>
+        <button class="cf-submit">Send It →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">RG<span>16</span></div>
+  <div class="f-copy">© 2026 Roman Gagliano · All Rights Reserved</div>
+  <div class="f-samoa">🌺 American Samoan · MTSU Blue Raiders</div>
+</footer>
+
+<script>
+const cursor=document.getElementById('cursor');
+const ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cursor.style.left=mx+'px';cursor.style.top=my+'px';
+});
+function animRing(){
+  rx+=(mx-rx)*.09;ry+=(my-ry)*.09;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+
+// Click to play/pause videos
+document.querySelectorAll('.film-card').forEach(card=>{
+  const video=card.querySelector('video');
+  const playBtn=card.querySelector('.film-play');
+  if(!video) return;
+  card.addEventListener('click',()=>{
+    if(video.paused){video.play();playBtn.textContent='⏸';playBtn.style.background='var(--r)';playBtn.style.borderColor='var(--r)';playBtn.style.color='#fff';}
+    else{video.pause();playBtn.textContent='▶';playBtn.style.background='';playBtn.style.borderColor='';playBtn.style.color='';}
+  });
+});
+</script>
+</body>
+</html>
